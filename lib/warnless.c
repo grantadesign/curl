@@ -251,3 +251,4 @@ size_t curlx_sotouz(curl_off_t sonum)
 #  pragma warning(pop)
 #endif
 }
+

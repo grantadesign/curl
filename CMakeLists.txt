@@ -63,7 +63,7 @@ if(WIN32)
 endif()
 
 option(BUILD_CURL_EXE "Set to ON to build cURL executable." ON)
-option(BUILD_CURL_TESTS "Set to ON to build cURL tests." ON)
+option(BUILD_CURL_TESTS "Set to ON to build cURL tests." OFF) #TS: don't build tests for now.
 option(CURL_STATICLIB "Set to ON to build libcurl with static linking." OFF)
 option(CURL_USE_ARES "Set to ON to enable c-ares support" OFF)
 # initialize CURL_LIBS
@@ -83,7 +83,7 @@ if(BUILD_DASHBOARD_REPORTS)
 endif(BUILD_DASHBOARD_REPORTS)
 
 if(MSVC)
-  option(BUILD_RELEASE_DEBUG_DIRS "Set OFF to build each configuration to a separate directory" OFF)
+  option(BUILD_RELEASE_DEBUG_DIRS "Set OFF to build each configuration to a separate directory" ON)
   mark_as_advanced(BUILD_RELEASE_DEBUG_DIRS)
 endif()
 
@@ -434,8 +434,8 @@ if(SIZEOF_LONG_LONG EQUAL 8)
   set(CURL_FORMAT_CURL_OFF_T "lld")
   set(CURL_FORMAT_CURL_OFF_TU "llu")
   set(CURL_FORMAT_OFF_T "%lld")
-  set(CURL_SUFFIX_CURL_OFF_T LL)
-  set(CURL_SUFFIX_CURL_OFF_TU LLU)
+  set(CURL_SUFFIX_CURL_OFF_T i64) #TS: MSVC doesn't like LL and LLU, so make it happy.
+  set(CURL_SUFFIX_CURL_OFF_TU ui64)
 endif(SIZEOF_LONG_LONG EQUAL 8)
 
 if(NOT CURL_TYPEOF_CURL_OFF_T)
@@ -537,7 +537,9 @@ check_symbol_exists(ioctl          "${CURL_INCLUDES}" HAVE_IOCTL)
 check_symbol_exists(setsockopt     "${CURL_INCLUDES}" HAVE_SETSOCKOPT)
 
 # symbol exists in win32, but function does not.
-check_function_exists(inet_pton HAVE_INET_PTON)
+check_function_exists(inet_pton_MUST_NOT_EXIST HAVE_INET_PTON) #TS: changed (added _MUST_NOT_EXIST) to fix XP64 startup failure (defect #20158), 
+#because inet_pton doesn't exist on < Vista. This is really because the buildslave is Win7 64; 
+#we would need separate installers if we did a proper cross-compile kind of thing.
 
 # sigaction and sigsetjmp are special. Use special mechanism for
 # detecting those, but only if previous attempt failed.
