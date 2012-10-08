@@ -58,7 +58,7 @@ include_directories(${PROJECT_BINARY_DIR}/include/curl)
 include_directories( ${CURL_SOURCE_DIR}/include )
 
 option(BUILD_CURL_EXE "Set to ON to build cURL executable." ON)
-option(BUILD_CURL_TESTS "Set to ON to build cURL tests." ON)
+option(BUILD_CURL_TESTS "Set to ON to build cURL tests." OFF)
 option(CURL_STATICLIB "Set to ON to build libcurl with static linking." OFF)
 option(CURL_USE_ARES "Set to ON to enable c-ares support" OFF)
 # initialize CURL_LIBS
@@ -78,7 +78,7 @@ if(BUILD_DASHBOARD_REPORTS)
 endif(BUILD_DASHBOARD_REPORTS)
 
 if(MSVC)
-  option(BUILD_RELEASE_DEBUG_DIRS "Set OFF to build each configuration to a separate directory" OFF)
+  option(BUILD_RELEASE_DEBUG_DIRS "Set OFF to build each configuration to a separate directory" ON)
   mark_as_advanced(BUILD_RELEASE_DEBUG_DIRS)
 endif()
 
@@ -544,7 +544,11 @@ check_symbol_exists(ioctl          "${CURL_INCLUDES}" HAVE_IOCTL)
 check_symbol_exists(setsockopt     "${CURL_INCLUDES}" HAVE_SETSOCKOPT)
 
 # symbol exists in win32, but function does not.
-check_function_exists(inet_pton HAVE_INET_PTON)
+check_function_exists(inet_pton_MUST_NOT_EXIST HAVE_INET_PTON)
+#TS: changed (added _MUST_NOT_EXIST) to fix XP64 startup failure (defect #20158), 
+#because inet_pton doesn't exist on < Vista. This is really because the buildslave is Win7 64; 
+#we would need separate installers if we did a proper cross-compile kind of thing.
+#Curl has a fallback impl of this function, so we work on everything.
 
 # sigaction and sigsetjmp are special. Use special mechanism for
 # detecting those, but only if previous attempt failed.
